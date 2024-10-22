@@ -1,13 +1,17 @@
-// App.js
 import React from 'react';
+import { Routes, Route } from 'react-router-dom';
 import DocumentForm from './DocumentForm';
+import ResultPage from './ResultPage';
 
-const App = () => {
+function App() {
   return (
-    <div className="App">
-      <DocumentForm />
+    <div>
+      <Routes>
+        <Route path="*" element={<DocumentForm />} />
+        <Route path="/viewer" element={<ResultPage />} />
+      </Routes>
     </div>
   );
-};
+}
 
 export default App;

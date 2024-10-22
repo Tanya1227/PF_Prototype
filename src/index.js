@@ -8,8 +8,8 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 ReactDOM.render(
   <Router>
     <Routes>
-      <Route path="/" element={<App />} />
-      <Route path="/result" element={<ResultPage />} />
+      <Route path="*" element={<App />} />
+      <Route path="/viewer" element={<ResultPage />} /> {/* Updated path to /viewer */}
     </Routes>
   </Router>,
   document.getElementById('root')
