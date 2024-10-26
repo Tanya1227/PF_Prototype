@@ -1,11 +1,15 @@
 import React, { useState } from 'react';
 import PDFViewer from './utils/PDFViewer'; // Assuming you have this component
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const OCRApp = () => {
   const [fields, setFields] = useState([]);
   const [file, setFile] = useState(null);
   const [fieldName, setFieldName] = useState('');
   const [isDragging, setIsDragging] = useState(false);
+
+  const navigate = useNavigate();
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
@@ -43,13 +47,82 @@ const OCRApp = () => {
     }
   };
 
-  const handleReplaceFile = () => {
+  const handleRemoveFile = () => {
     setFile(null);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    const dataObject = `{"fields": ["${fields.join('","')}"]}`;
+
+    let apiResponse;
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("json_data", dataObject);  // Convert the object to a JSON string
+
+    axios.post('http://localhost:8000/upload', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    })
+    .then(response => {
+      // console.log("Response: ", response.data);
+      apiResponse = response.data.data;
+      console.log("Api Response: ", apiResponse);
+
+      // Navigate to the viewer page with the filtered backend response and document
+      navigate('/viewer', { 
+        state: { 
+          fieldData: apiResponse, 
+          documentUrl: URL.createObjectURL(file) 
+        } 
+      });
+      
+    })
+    .catch(error => {
+      console.error(error);
+    });
+
     console.log('Submitting:', { fields, file });
-    // Add your API logic here
+    
+    // // Simulating the backend response with static data
+    // const mockBackendResponse = [
+    //   {
+    //     "serialNo": "1",
+    //     "id": "14",
+    //     "entityValue": "US-001",
+    //     "entityName": "Location",
+    //     "pixelCoord": [[652.0, 211.0], [695.0, 211.0], [695.0, 227.0], [652.0, 227.0]]
+    //   },
+    //   {
+    //     "serialNo": "2",
+    //     "id": "15",
+    //     "entityValue": "John",
+    //     "entityName": "Name",
+    //     "pixelCoord": [[55.0, 235.0], [83.0, 235.0], [83.0, 249.0], [55.0, 249.0]]
+    //   },
+    //   {
+    //     "serialNo": "3",
+    //     "id": "33",
+    //     "entityValue": "2312/2019",
+    //     "entityName": "Date",
+    //     "pixelCoord": [[637.0, 265.0], [695.0, 265.0], [695.0, 277.0], [637.0, 277.0]]
+    //   },
+    //   {
+    //     "serialNo": "4",
+    //     "id": "60",
+    //     "entityValue": "$154.06",
+    //     "entityName": "Amount",
+    //     "pixelCoord": [[626.0, 555.0], [685.0, 555.0], [685.0, 575.0], [626.0, 575.0]]
+    //   }
+    // ];
+
+    // // Filter the backend response to include only the entered field names
+    // const filteredFieldData = mockBackendResponse.filter(field =>
+    //   fields.includes(field.entityName)
+    // );
   };
 
   return (
@@ -116,10 +189,10 @@ const OCRApp = () => {
                     <PDFViewer file={file} />
                   )}
                   <button
-                    onClick={handleReplaceFile}
+                    onClick={handleRemoveFile}
                     className="mt-4 bg-blue-600 text-white px-4 py-2 rounded"
                   >
-                    Replace File
+                    Remove File
                   </button>
                 </div>
               )}
@@ -132,6 +205,11 @@ const OCRApp = () => {
                   type="text"
                   value={fieldName}
                   onChange={(e) => setFieldName(e.target.value)}
+                  onKeyDown={(e) => {
+                    if(e.key === "Enter"){
+                      handleAddField();
+                    }
+                  }}
                   className="flex-grow px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Enter field name"
                 />
