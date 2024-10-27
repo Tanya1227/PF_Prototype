@@ -1,12 +1,16 @@
 import React, { useState } from 'react';
-import PDFViewer from './utils/PDFViewer'; // Assuming you have this component
+import PDFViewer from '../utils/PDFViewer';
+import { useNavigate } from 'react-router-dom'; // Assuming you have this component
+
+
+
 
 const OCRApp = () => {
   const [fields, setFields] = useState([]);
   const [file, setFile] = useState(null);
   const [fieldName, setFieldName] = useState('');
   const [isDragging, setIsDragging] = useState(false);
-
+  const navigate = useNavigate();
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
     if (selectedFile && (selectedFile.type === 'application/pdf' || selectedFile.type.startsWith('image/'))) {
@@ -50,6 +54,163 @@ const OCRApp = () => {
   const handleSubmit = () => {
     console.log('Submitting:', { fields, file });
     // Add your API logic here
+
+    const data= 
+    {
+      "fields": [
+       
+        "name",
+        "date"
+      ],
+      "data": [
+        {
+          "serial no.": 1,
+          "id": 8,
+          "entityValue": "MONIKA",
+          "entityName": "name",
+          "pixelCoord": [
+            [
+              25,
+              99
+            ],
+            [
+              98,
+              99
+            ],
+            [
+              98,
+              116
+            ],
+            [
+              25,
+              116
+            ]
+          ]
+        },
+        {
+          "serial no.": 2,
+          "id": 9,
+          "entityValue": "MAHADEV",
+          "entityName": "name",
+          "pixelCoord": [
+            [
+              104,
+              101
+            ],
+            [
+              190,
+              101
+            ],
+            [
+              190,
+              115
+            ],
+            [
+              104,
+              115
+            ]
+          ]
+        },
+        {
+          "serial no.": 3,
+          "id": 10,
+          "entityValue": "SHINDE",
+          "entityName": "name",
+          "pixelCoord": [
+            [
+              198,
+              101
+            ],
+            [
+              267,
+              101
+            ],
+            [
+              267,
+              115
+            ],
+            [
+              198,
+              115
+            ]
+          ]
+        },
+        {
+          "serial no.": 4,
+          "id": 13,
+          "entityValue": "31/10/1992",
+          "entityName": "date",
+          "pixelCoord": [
+            [
+              24,
+              176
+            ],
+            [
+              128,
+              176
+            ],
+            [
+              128,
+              193
+            ],
+            [
+              24,
+              193
+            ]
+          ]
+        },
+        {
+          "serial no.": 5,
+          "id": 18,
+          "entityValue": "MONIKA",
+          "entityName": "name",
+          "pixelCoord": [
+            [
+              20,
+              250
+            ],
+            [
+              92,
+              254
+            ],
+            [
+              91,
+              275
+            ],
+            [
+              19,
+              271
+            ]
+          ]
+        },
+        {
+          "serial no.": 6,
+          "id": 20,
+          "entityValue": "SHINDE",
+          "entityName": "name",
+          "pixelCoord": [
+            [
+              125,
+              254
+            ],
+            [
+              197,
+              252
+            ],
+            [
+              197,
+              270
+            ],
+            [
+              125,
+              273
+            ]
+          ]
+        }
+      ]
+    }
+   
+    navigate('/data-display', { state: { fields, data, file } });
   };
 
   return (
