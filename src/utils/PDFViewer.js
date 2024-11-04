@@ -8,6 +8,7 @@ const PDFViewer = ({ file }) => {
   const canvasRef = useRef();
   const [numPages, setNumPages] = useState(null);
   const [pageNumber, setPageNumber] = useState(1);
+  const [renderTask, setRenderTask] = useState(null); // Track the current render task
 
   useEffect(() => {
     const loadingTask = getDocument(URL.createObjectURL(file));
@@ -19,25 +20,41 @@ const PDFViewer = ({ file }) => {
     });
   }, [file, pageNumber]);
 
-  const renderPage = (num, pdf) => {
-    pdf.getPage(num).then((page) => {
-      const canvas = canvasRef.current;
-      const context = canvas.getContext('2d');
-      const viewport = page.getViewport({ scale: 1 });
-      canvas.height = viewport.height;
-      canvas.width = viewport.width;
+  const renderPage = async (num, pdf) => {
+    if (renderTask) {
+      renderTask.cancel(); // Cancel previous render task if it's still running
+    }
 
-      const renderContext = {
-        canvasContext: context,
-        viewport: viewport,
-      };
-      page.render(renderContext);
+    const page = await pdf.getPage(num);
+    const canvas = canvasRef.current;
+    const context = canvas.getContext('2d');
+    const viewport = page.getViewport({ scale: 1 });
+
+    canvas.height = viewport.height;
+    canvas.width = viewport.width;
+
+    const renderContext = {
+      canvasContext: context,
+      viewport: viewport,
+    };
+
+    const task = page.render(renderContext);
+    setRenderTask(task); // Store the current render task
+
+    task.promise.then(() => {
+      setRenderTask(null); // Clear the render task once it's done
+    }).catch((error) => {
+      console.error('Render error:', error);
+      setRenderTask(null); // Clear the render task on error
     });
   };
 
   return (
     <div className="flex flex-col items-center">
-      <canvas ref={canvasRef} />
+      <canvas
+        ref={canvasRef}
+        style={{ width: '100%', height: 'auto' }} // Make sure canvas takes full width
+      />
       <div className="flex space-x-2 mt-2">
         <button
           disabled={pageNumber <= 1}

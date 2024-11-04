@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import PDFViewer from './utils/PDFViewer'; // Assuming you have this component
+import PDFViewer from '../utils/PDFViewer.js'; // Assuming you have this component
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
@@ -69,16 +69,18 @@ const OCRApp = () => {
     })
     .then(response => {
       // console.log("Response: ", response.data);
-      apiResponse = response.data.data;
+      apiResponse = response.data;
       console.log("Api Response: ", apiResponse);
 
-      // Navigate to the viewer page with the filtered backend response and document
-      navigate('/viewer', { 
-        state: { 
-          fieldData: apiResponse, 
-          documentUrl: URL.createObjectURL(file) 
-        } 
-      });
+      // Navigate to the data-display page with the filtered backend response and document
+
+      navigate('/data-display', { state: { fields: fields, data: apiResponse, file: file } });
+      // navigate('/viewer', { 
+      //   state: { 
+      //     fieldData: apiResponse, 
+      //     documentUrl: URL.createObjectURL(file) 
+      //   } 
+      // });
       
     })
     .catch(error => {
